@@ -1,0 +1,64 @@
+version: '3' #versão do docker-compose
+services: #criando serviços
+  nginx: #nome do serviço
+    build: #build do serviço
+      dockerfile: ./docker/nginx.dockerfile #caminho do dockerfile do serviço
+      context: . #contexto que o build será executado
+    image: jordanan/nginx #nome da imagem
+    container_name: nginx #nome do container
+    ports: #portas da maquina e do container
+      - "80:80"
+    networks: 
+      - production_network #rede que o container vai rodar usando o '-' vira um array para o yml
+    depends_on: 
+      - "node1"
+      - "node2"
+      - "node3"
+  
+  mongodb: #nome do serviço
+    image: mongo #build do serviço apartir de uma imagem e nao de um dockerfile
+    networks: 
+      - production_network
+
+  node1:
+    build:
+      dockerfile: ./docker/alura-books.dockerfile
+      context: .
+    image: jordanan/alura-books
+    container_name: alura-books-1
+    ports:
+      - "3000"
+    networks: 
+      - production_network
+    depends_on: # informa q um serviço depende de outro para o start
+      - "mongodb"
+
+  node2:
+    build:
+      dockerfile: ./docker/alura-books.dockerfile
+      context: .
+    image: jordanan/alura-books
+    container_name: alura-books-2
+    ports:
+      - "3000"
+    networks: 
+      - production_network
+    depends_on: 
+      - "mongodb"
+
+  node3:
+    build:
+      dockerfile: ./docker/alura-books.dockerfile
+      context: .
+    image: jordanan/alura-books
+    container_name: alura-books-3
+    ports:
+      - "3000"
+    networks: 
+      - production_network
+    depends_on: 
+      - "mongodb"
+
+networks: #criando a rede a partir do drive bridge
+  production_network:
+    driver: bridge
